@@ -65,6 +65,12 @@ def jump_to_open(ip: int, prog: List[str]) -> int:
     raise ValueError("Invalid program! Unbalanced close bracket at {}".format(ip))
 
 
+def segfault(iptr, instruction, dptr, data):
+    print('Segmentation Fault! Instruction at {} ({}) attempted to access data at address {}.'
+          ' Out of bounds of memory (size = {})'.format(iptr, instruction, dptr, len(data)))
+    return 111
+
+
 def execute(program: str) -> int:
     global dptr
     global data
@@ -74,26 +80,48 @@ def execute(program: str) -> int:
     err('  Append " 2>/dev/null" to your command to discard debug output')
     err('Execution began: prog length = {}'.format(len(program)))
     while iptr < len(program):
-        instruction = program[iptr]
+        try:
+            instruction = program[iptr]
+        except IndexError:
+            print('Invalid instruction pointer: program length: {}, iptr: {}'.format(len(program), iptr))
+            return 1
         if instruction == '>':
             dptr += 1
         elif instruction == '<':
             dptr -= 1
         elif instruction == '+':
-            data[dptr] += 1
+            try:
+                data[dptr] += 1
+            except IndexError:
+                return segfault(iptr, program[iptr], dptr, data)
         elif instruction == '-':
-            data[dptr] -= 1
+            try:
+                data[dptr] -= 1
+            except IndexError:
+                return segfault(iptr, program[iptr], dptr, data)
         elif instruction == '.':
-            putch(data[dptr])
+            try:
+                putch(data[dptr])
+            except IndexError:
+                return segfault(iptr, program[iptr], dptr, data)
         elif instruction == ',':
             err("$ ")
-            data[dptr] = getch()
+            try:
+                data[dptr] = getch()
+            except IndexError:
+                return segfault(iptr, program[iptr], dptr, data)
         elif instruction == '[':
-            if data[dptr] == 0:
-                iptr = jump_to_close(iptr, program)
+            try:
+                if data[dptr] == 0:
+                    iptr = jump_to_close(iptr, program)
+            except IndexError:
+                return segfault(iptr, program[iptr], dptr, data)
         elif instruction == ']':
-            if data[dptr] != 0:
-                iptr = jump_to_open(iptr, program)
+            try:
+                if data[dptr] != 0:
+                    iptr = jump_to_open(iptr, program)
+            except IndexError:
+                return segfault(iptr, program[iptr], dptr, data)
         else:
             # ignore any characters not used for commands
             pass
