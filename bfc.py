@@ -68,7 +68,7 @@ def jump_to_open(ip: int, prog: List[str]) -> int:
 def segfault(iptr, instruction, dptr, data):
     print('Segmentation Fault! Instruction at {} ({}) attempted to access data at address {}.'
           ' Out of bounds of memory (size = {})'.format(iptr, instruction, dptr, len(data)))
-    return 111
+    return 1
 
 
 def execute(program: str) -> int:
