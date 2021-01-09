@@ -133,7 +133,7 @@ def inprint(indent, msg):
     print(('  ' * indent) + msg)
 
 
-def cpile(program):
+def cpile(program, maxmem=2**16):
     global dptr
     global data
     program = [i for i in program]
@@ -146,7 +146,7 @@ def cpile(program):
     inprint(indent, '#include <stdio.h>')
     inprint(indent, 'int main(int argc, char const *arv[]) {')
     indent += 1
-    inprint(indent, 'char p[65536] = {0};')
+    inprint(indent, 'char p[{}] = {};'.format(maxmem, '{0}'))
     inprint(indent, 'char *ptr = (char*)p;')
     while iptr < len(program):
         instruction = program[iptr]
@@ -179,20 +179,21 @@ def cpile(program):
 def main():
     global data
     args = parse_args()
+    memsize = args.maxmem or 2**16
     if args.maxmem:
         data = [0] * int(args.maxmem)
     if args.compile:
         if args.command:
-            return cpile(args.command)
+            return cpile(args.command, memsize)
         elif args.prompt:
             program = input("%: ")
-            return cpile(program)
+            return cpile(program, memsize)
         elif args.file:
             with open(args.file) as f:
                 text = f.read()
-            return cpile(text)
+            return cpile(text, memsize)
         else:
-            return cpile(input())
+            return cpile(input(), memsize)
     else:
         if args.command:
             return execute(args.command)
