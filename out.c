@@ -1,7 +1,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 int main(int argc, char const *arv[]) {
-  char p[65536] = {0};
+  char p[2] = {0};
   char *ptr = (char*)p;
   while (*ptr) {
     *ptr = getchar();

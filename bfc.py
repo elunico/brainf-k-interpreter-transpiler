@@ -85,46 +85,31 @@ def execute(program: str) -> int:
         except IndexError:
             print('Invalid instruction pointer: program length: {}, iptr: {}'.format(len(program), iptr))
             return 1
-        if instruction == '>':
-            dptr += 1
-        elif instruction == '<':
-            dptr -= 1
-        elif instruction == '+':
-            try:
+        try:
+            if instruction == '>':
+                dptr += 1
+            elif instruction == '<':
+                dptr -= 1
+            elif instruction == '+':
                 data[dptr] += 1
-            except IndexError:
-                return segfault(iptr, program[iptr], dptr, data)
-        elif instruction == '-':
-            try:
+            elif instruction == '-':
                 data[dptr] -= 1
-            except IndexError:
-                return segfault(iptr, program[iptr], dptr, data)
-        elif instruction == '.':
-            try:
+            elif instruction == '.':
                 putch(data[dptr])
-            except IndexError:
-                return segfault(iptr, program[iptr], dptr, data)
-        elif instruction == ',':
-            err("$ ")
-            try:
+            elif instruction == ',':
+                err("$ ")
                 data[dptr] = getch()
-            except IndexError:
-                return segfault(iptr, program[iptr], dptr, data)
-        elif instruction == '[':
-            try:
+            elif instruction == '[':
                 if data[dptr] == 0:
                     iptr = jump_to_close(iptr, program)
-            except IndexError:
-                return segfault(iptr, program[iptr], dptr, data)
-        elif instruction == ']':
-            try:
+            elif instruction == ']':
                 if data[dptr] != 0:
                     iptr = jump_to_open(iptr, program)
-            except IndexError:
-                return segfault(iptr, program[iptr], dptr, data)
-        else:
-            # ignore any characters not used for commands
-            pass
+            else:
+                # ignore any characters not used for commands
+                pass
+        except IndexError:
+            return segfault(iptr, program[iptr], dptr, data)
         iptr += 1
     err('Program completed.')
 
